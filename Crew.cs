@@ -8,8 +8,8 @@ namespace musicfestivalmanagementapp
     {
         public string HourlyRate { get; set; }
         public string EmploymentType { get; set; }
-        public int WeeklyHours { get; set; }
-        public Crew(string hourly_rate, int weekly_hours, string employment_type, string personid, string name, string telephone, string role, string email) : base(personid, name, telephone, email, role)
+        public string WeeklyHours { get; set; }
+        public Crew(string hourly_rate, string weekly_hours, string employment_type, string personid, string name, string telephone, string role, string email) : base(personid, name, telephone, email, role)
         {
             HourlyRate = hourly_rate;
             EmploymentType = employment_type;
@@ -23,9 +23,9 @@ namespace musicfestivalmanagementapp
         public override void DisplayInfo()
         {
             base.DisplayInfo();
-            Console.WriteLine($"Hourly Rate {HourlyRate}");
-            Console.WriteLine($"Employment type {EmploymentType}");
-            Console.WriteLine($"Weekly Hours {WeeklyHours}");
+            Console.WriteLine($"Crew Hourly Rate: {HourlyRate}");
+            Console.WriteLine($"Crew Employment type: {EmploymentType}");
+            Console.WriteLine($"Crew Weekly Hours: {WeeklyHours}");
 
         }
 

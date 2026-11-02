@@ -9,8 +9,10 @@ namespace musicfestivalmanagementapp
         void Add(EventStaff eventstaff);
         List<EventStaff> GetAll();
         bool EmailExists(string email);
-        void Delete(string PersonID);
-
+        void Delete(int PersonID);
+        List<EventStaff> GetAllVendors();
+        List<EventStaff> GetAllPerformers();
+        List<EventStaff> GetAllCrew();
     }
 
 }

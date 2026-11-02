@@ -10,7 +10,7 @@ namespace musicfestivalmanagementapp
         private string connectionString;
         private MySql.Data.MySqlClient.MySqlConnection conn;
         public const string BASE_SQL_COMMAND = @"
-SELECT p.id AS main_person_id,
+SELECT p.id AS person_id,
 p.person_name,
 p.person_contact,
 p.person_email,
@@ -20,16 +20,84 @@ v.vendor_company_name,
 c.id AS crew_id,
 c.hourly_rate,
 c.employee_type,
-c.weekly_hour,
+c.weekly_hours,
 performers.fee, 
 performers.id AS performer_id,
-categories.category_name,
-genres.genre_name
+GROUP_CONCAT(DISTINCT categories.category_name) AS categories_list,
+GROUP_CONCAT(DISTINCT genres.genre_name) AS genres_list
 FROM people p LEFT JOIN vendors v ON v.person_id = p.id 
 LEFT JOIN crew c ON c.person_id = p.id
 LEFT JOIN performers ON performers.person_id = p.id 
-LEFT JOIN genres ON genres.performers_id = performers.id 
-LEFT JOIN categories ON categories.vendor_id = v.id;
+LEFT JOIN genres ON genres.performer_id = performers.id 
+LEFT JOIN categories ON categories.vendor_id = v.id GROUP BY p.id;
+";
+        public const string GET_ALL_VENDORS = @"
+SELECT p.id AS person_id,
+p.person_name,
+p.person_contact,
+p.person_email,
+p.person_role,
+v.id AS vendor_id, 
+v.vendor_company_name,
+NULL AS crew_id,
+NULL AS hourly_rate,
+NULL AS employee_type,
+NULL AS weekly_hours,
+NULL AS performers_fee, 
+NULL AS performer_id,
+GROUP_CONCAT(DISTINCT categories.category_name) AS categories_list,
+NULL AS genre_list
+FROM people p LEFT JOIN vendors v ON v.person_id = p.id 
+LEFT JOIN crew c ON c.person_id = p.id
+LEFT JOIN performers ON performers.person_id = p.id 
+LEFT JOIN genres ON genres.performer_id = performers.id 
+LEFT JOIN categories ON categories.vendor_id = v.id WHERE p.person_role = 'Vendor' GROUP BY p.id;
+";
+        public const string GET_ALL_PERFORMERS = @"
+SELECT p.id AS person_id,
+p.person_name,
+p.person_contact,
+p.person_email,
+p.person_role,
+NULL AS vendor_id, 
+NULL AS vendor_company_name,
+NULL AS crew_id,
+NULL AS hourly_rate,
+NULL AS employee_type,
+NULL AS weekly_hours,
+performers.id,
+performers.fee, 
+performers.id,
+GROUP_CONCAT(DISTINCT genres.genre_name) AS genres_list,
+NULL AS categories_list
+FROM people p LEFT JOIN vendors v ON v.person_id = p.id 
+LEFT JOIN crew c ON c.person_id = p.id
+LEFT JOIN performers ON performers.person_id = p.id 
+LEFT JOIN genres ON genres.performer_id = performers.id 
+LEFT JOIN categories ON categories.vendor_id = v.id WHERE p.person_role = 'Performer' GROUP BY p.id;
+";
+        public const string GET_ALL_CREW = @"
+SELECT p.id AS person_id,
+p.person_name,
+p.person_contact,
+p.person_email,
+p.person_role,
+NULL AS vendor_id, 
+NULL AS vendor_company_name,
+c.id AS crew_id,
+c.hourly_rate,
+c.employee_type,
+c.weekly_hours,
+NULL AS performers_id,
+NULL AS performer_fee, 
+NULL AS performer_id,
+NULL AS genres_list,
+NULL AS categories_list
+FROM people p LEFT JOIN vendors v ON v.person_id = p.id 
+LEFT JOIN crew c ON c.person_id = p.id
+LEFT JOIN performers ON performers.person_id = p.id 
+LEFT JOIN genres ON genres.performer_id = performers.id 
+LEFT JOIN categories ON categories.vendor_id = v.id WHERE p.person_role = 'Crew' GROUP BY p.id;
 ";
         public EventStaffManagementMySqlRepository(string connectionString)
         {
@@ -73,12 +141,89 @@ LEFT JOIN categories ON categories.vendor_id = v.id;
             return false;
 
         }
-        public void Delete(string PersonID) { }
-        public List<EventStaff> GetAll() {
-            return new List<EventStaff>();
+        public void Delete(int PersonID) { 
+        using (MySqlConnection conn = CreateConnection())
+            {
+                conn.Open();
+                string sql = @"DELETE FROM people WHERE id = @id;";
+                using(MySqlCommand cmd = new MySqlCommand (sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id",  PersonID);
+                    cmd.ExecuteNonQuery();
+                }
 
+            }        
+                    
         }
-    private int AddPerson(MySqlConnection conn, MySqlTransaction tx, EventStaff eventstaff)
+        public List<EventStaff> GetAll()
+        {
+            List<EventStaff> results = new List<EventStaff>();
+            using (MySqlConnection conn = CreateConnection())
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(BASE_SQL_COMMAND, conn))
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read()) {
+                        results.Add(Maprowtoitem(reader));
+                    }
+                }
+                return results;
+            }
+        }
+        public List<EventStaff> GetAllVendors()
+        {
+            List<EventStaff> results = new List<EventStaff>();
+            using (MySqlConnection conn = CreateConnection())
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(GET_ALL_VENDORS, conn))
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        results.Add(Maprowtoitem(reader));
+                    }
+                }
+                return results;
+            }
+        }
+        public List<EventStaff> GetAllPerformers()
+        {
+            List<EventStaff> results = new List<EventStaff>();
+            using (MySqlConnection conn = CreateConnection())
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(GET_ALL_PERFORMERS, conn))
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        results.Add(Maprowtoitem(reader));
+                    }
+                }
+                return results;
+            }
+        }
+                public List<EventStaff> GetAllCrew()
+        {
+            List<EventStaff> results = new List<EventStaff>();
+            using (MySqlConnection conn = CreateConnection())
+            {
+                conn.Open();
+                using (MySqlCommand cmd = new MySqlCommand(GET_ALL_CREW, conn))
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        results.Add(Maprowtoitem(reader));
+                    }
+                }
+                return results;
+            }
+        }
+
+        private int AddPerson(MySqlConnection conn, MySqlTransaction tx, EventStaff eventstaff)
         {
             using (MySqlCommand cmd = conn.CreateCommand())
             {
@@ -154,6 +299,39 @@ VALUES (@emptype, @hourly_rate, @weekly_hours, @person_id); ";
                 cmd.Parameters.AddWithValue(@"person_id", personId);
                 cmd.ExecuteNonQuery();
             }
+        }
+        private EventStaff Maprowtoitem(MySqlDataReader reader) {
+            string personId = reader.GetInt32("person_id").ToString();
+            string personName = reader.GetString("person_name");
+            string personContact = reader.GetString("person_contact");
+            string personEmail = reader.GetString("person_email");
+            string personRole = reader.GetString("person_role");
+            if(personRole == "Vendor")
+            {
+                string vendorCompanyName = reader.GetString("vendor_company_name");
+                string rowcategries = reader.GetString("categories_list");
+                List<string> categoriesList = rowcategries.Split(',').ToList();
+                return new Vendor(vendorCompanyName, categoriesList, personId, personName, personContact, personRole, personEmail);
+             }
+            else if (personRole == "Performer")
+            {
+                string fee = reader.GetString("fee");
+                string rowgenres = reader.GetString("genres_list");
+                List<string> genresList = rowgenres.Split(",").ToList();
+                return new Performer(genresList, fee, personId, personName, personContact, personRole, personEmail);
+
+            }
+            if (personRole == "Crew")
+            {
+                string hourlyRate = reader.GetString("hourly_rate");
+                string employeeType = reader.GetString("employee_type");
+                string weeklyHours = reader.GetString("weekly_hours");
+                return new Crew(hourlyRate, weeklyHours, employeeType, personId, personName, personContact, personRole, personEmail);
+
+            }
+
+            return null;
+   
         }
 
     } 

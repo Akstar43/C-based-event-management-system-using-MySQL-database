@@ -20,9 +20,11 @@ namespace musicfestivalmanagementapp
         public override void DisplayInfo()
         {
             base.DisplayInfo();
-            Console.WriteLine($"Fee ${Fee}");
+            Console.WriteLine($"Performer Fees ${Fee}");
+            Console.WriteLine("Performer genres");
             for (int i = 0; i < Genres.Count; i++)
             {
+                Console.WriteLine(i + 1);
                 Console.WriteLine(Genres[i]);
             }
 

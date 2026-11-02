@@ -20,9 +20,11 @@ namespace musicfestivalmanagementapp
         public override void DisplayInfo()
         {
             base.DisplayInfo();
-            Console.WriteLine($"Vendor Name {VendorName}");
+            Console.WriteLine($"Vendor Company Name: {VendorName}");
+            Console.WriteLine("Vendor Categories");
             for (int i = 0; i < Categories.Count; i++)
             {
+                Console.WriteLine(i + 1);
                 Console.WriteLine(Categories[i]);
             }
 

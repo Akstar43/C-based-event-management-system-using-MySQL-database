@@ -52,9 +52,9 @@ namespace musicfestivalmanagementapp
                             ViewAllRecords();
                             break;
                         case 3:
-                            Console.WriteLine("1. Add Vendor");
-                            Console.WriteLine("2. Add Performer");
-                            Console.WriteLine("3. Add Crew");
+                            Console.WriteLine("1. View All Vendors");
+                            Console.WriteLine("2. View All Performers");
+                            Console.WriteLine("3. View All Crew Members");
                             Console.WriteLine("Enter Choice: ");
                             if (int.TryParse(Console.ReadLine(), out int selectoption))
                             {
@@ -157,7 +157,7 @@ namespace musicfestivalmanagementapp
         {
             string employment_type = "";
             string employment_type_options = "";
-            string weekly_hours_options = "";
+            int weekly_hours_options = 0;
             int weekly_hours = 0;
             Console.WriteLine("Add new Crew Member");
             Console.WriteLine("Crew Member Name");
@@ -210,20 +210,80 @@ namespace musicfestivalmanagementapp
             }
             string role = "Crew";
 
-            string result = manager.AddCrew(name, email, telephone, role, hourly_rate, weekly_hours, employment_type);
+            string result = manager.AddCrew(name, email, telephone, role, hourly_rate, weekly_hours.ToString(), employment_type);
             Console.WriteLine($"\n{result}");
 
         }
         private void ViewAllPerformers()
         {
+            Console.WriteLine("\n=== ALL PERFORMERS ===");
+
+            // Get all items from manager
+            List<EventStaff> performers = manager.GetAllPerformers();
+            if (performers.Count <= 0)
+            {
+                Console.WriteLine("No Staff in system");
+                return;
+            }
+            var count = 0;
+            foreach (var people in performers)
+            {
+                Console.WriteLine($"Number: {count + 1}");
+                people.DisplayInfo();
+                Console.WriteLine();
+                count++;
+
+            }
+
+
 
         }
         private void ViewAllCrew()
         {
+            Console.WriteLine("\n=== ALL CREW ===");
+
+            // Get all items from manager
+            List<EventStaff> crew_member = manager.GetAllCrew();
+            if (crew_member.Count <= 0)
+            {
+                Console.WriteLine("No Crew in system");
+                return;
+            }
+            var count = 0;
+            foreach (var people in crew_member)
+            {
+                Console.WriteLine($"Number: {count + 1}");
+                people.DisplayInfo();
+                Console.WriteLine();
+                count++;
+
+            }
+
+
 
         }
         private void ViewAllVendors()
         {
+            Console.WriteLine("\n=== ALL VENDORS ===");
+
+            // Get all items from manager
+            List<EventStaff> vendor = manager.GetAllVendors();
+            if (vendor.Count <= 0)
+            {
+                Console.WriteLine("No Staff in system");
+                return;
+            }
+            var count = 0;
+            foreach (var people in vendor)
+            {
+                Console.WriteLine($"Number: {count + 1}");
+                people.DisplayInfo();
+                Console.WriteLine();
+                count++;
+
+            }
+
+
 
         }
         private void EditRecords()
@@ -232,6 +292,11 @@ namespace musicfestivalmanagementapp
         }
         private void DeleteRecords()
         {
+            ViewAllRecords();
+            Console.WriteLine("==DELETE RECORD USING PERSON_ID");
+            Console.Write("Enter Person ID ");
+            int.TryParse(Console.ReadLine(), out int personid);
+            manager.delete(personid);
 
         }
         private void ViewAllRecords()

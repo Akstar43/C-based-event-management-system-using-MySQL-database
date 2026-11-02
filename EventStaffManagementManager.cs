@@ -75,7 +75,7 @@ namespace musicfestivalmanagementapp
             repository.Add(newperformer);
             return "SUCCESS: Performer '" + name + role + "' added successfully with ID: ??";
         }
-        public string AddCrew(string crew_name, string email, string telephone, string role, string hourly_rate, int weekly_hours, string employment_type)
+        public string AddCrew(string crew_name, string email, string telephone, string role, string hourly_rate, string weekly_hours, string employment_type)
         {
             if (crew_name == "")
             {
@@ -106,6 +106,22 @@ namespace musicfestivalmanagementapp
         public List<EventStaff> GetAllStaff()
         {
             return repository.GetAll();
+        }
+        public List<EventStaff> GetAllVendors()
+        {
+            return repository.GetAllVendors();
+        }
+        public List<EventStaff> GetAllPerformers()
+        {
+            return repository.GetAllPerformers();
+        }
+        public List<EventStaff> GetAllCrew()
+        {
+            return repository.GetAllCrew();
+        }
+        public void delete(int personId)
+        {
+            repository.Delete(personId);
         }
 
     }

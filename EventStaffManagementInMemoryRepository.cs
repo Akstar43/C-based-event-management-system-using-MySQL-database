@@ -31,6 +31,43 @@ namespace musicfestivalmanagementapp
         {
             return eventstaffs;
         }
+        public List<EventStaff> GetAllVendors()
+        {
+            List<EventStaff> vendors = new List<EventStaff>();
+            for (int i = 0; i < eventstaffs.Count; i++)
+            {
+                if (eventstaffs[i] is Vendor vendor)
+                {
+                    vendors.Add(vendor);
+                }
+            }
+            return vendors;
+        }
+        public List<EventStaff> GetAllPerformers()
+        {
+            List<EventStaff> performers = new List<EventStaff>();
+            for (int i = 0; i < eventstaffs.Count; i++)
+            {
+                if (eventstaffs[i] is Performer performer)
+                {
+                    performers.Add(performer);
+                }
+            }
+            return performers;
+        }
+        public List<EventStaff> GetAllCrew()
+        {
+            List<EventStaff> crew_members = new List<EventStaff>();
+            for (int i = 0; i < eventstaffs.Count; i++)
+            {
+                if (eventstaffs[i] is Crew crew)
+                {
+                    crew_members.Add(crew);
+                }
+            }
+            return crew_members;
+        }
+
 
         public string GeneratePersonID(EventStaff eventstaff)
         {
@@ -65,6 +102,26 @@ namespace musicfestivalmanagementapp
             }
             return false;
         }
-        public void Delete(string PersonID) { }
+        public void Delete(int PersonID) {
+            EventStaff eventstaff = FindByID(PersonID);
+            if(eventstaff == null)
+            {
+                eventstaffs.Remove(eventstaff);
+            }
+        }
+        public EventStaff FindByID(int id)
+        {
+            string newid = id.ToString();
+            for(int i = 0; i < eventstaffs.Count; i++)
+
+            {
+                if (eventstaffs[i].PersonID == newid) 
+                {
+                    return eventstaffs[i];
+
+                }
+            }
+            return null;
+        }
     }
 }
