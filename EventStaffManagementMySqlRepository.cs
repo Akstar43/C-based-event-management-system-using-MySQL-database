@@ -136,10 +136,47 @@ LEFT JOIN categories ON categories.vendor_id = v.id WHERE p.person_role = 'Crew'
 
 
         }
+        public void Edit(EventStaff eventstaff, int personID)
+        {
+            if (eventstaff == null) throw new ArgumentNullException(nameof(eventstaff));
+            using (MySqlConnection conn = CreateConnection())
+            {
+                conn.Open();
+                using (MySqlTransaction tx = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        EditPerson(conn, tx, eventstaff, personID);
+
+                        if (eventstaff is Vendor vendor) { EditVendor(conn, tx,personID, vendor); }
+                        else if (eventstaff is Crew crew) { EditCrew(conn, tx, personID, crew); }
+                        else if (eventstaff is Performer performer) { EditPerformer(conn, tx, personID, performer); }
+                        tx.Commit();
+                    }
+                    catch
+                    {
+                        tx.Rollback();
+                        throw;
+                    }
+                }
+            }
+
+
+        }
         public bool EmailExists(string email)
         {
-            return false;
+            using (MySqlConnection conn = CreateConnection())
+            {
+                conn.Open();
+                string sql = "SELECT COUNT(1) FROM people WHERE person_email = @email;";
 
+                using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@email", email);
+                    long count = Convert.ToInt64(cmd.ExecuteScalar());
+                    return count > 0;
+                }
+            }
         }
         public void Delete(int PersonID) { 
         using (MySqlConnection conn = CreateConnection())
@@ -238,8 +275,24 @@ VALUES (@person_name, @person_contact, @person_email,  @role); SELECT LAST_INSER
             }
 
         }
+        private void EditPerson(MySqlConnection conn, MySqlTransaction tx, EventStaff eventstaff, int personID)
+        {
+            using (MySqlCommand cmd = conn.CreateCommand())
+            {
+                cmd.Transaction = tx;
+                cmd.CommandText = @"UPDATE people SET person_name = @person_name, person_contact = @person_contact, person_email = @person_email, person_role = @role WHERE people.id = @id";
+                cmd.Parameters.AddWithValue("@person_name", eventstaff.Name);
+                cmd.Parameters.AddWithValue("@person_contact", eventstaff.Telephone);
+                cmd.Parameters.AddWithValue("@person_email", eventstaff.Email);
+                cmd.Parameters.AddWithValue("@role", eventstaff.Role);
+                cmd.Parameters.AddWithValue("@id", personID);
+                cmd.ExecuteNonQuery();
+            }
+
+        }
         private void AddVendor(MySqlConnection conn, MySqlTransaction tx, int personId, Vendor vendor)
         {
+
             int VendorId;
             using (MySqlCommand cmd = conn.CreateCommand())
             {
@@ -260,6 +313,17 @@ VALUES (@person_name, @person_contact, @person_email,  @role); SELECT LAST_INSER
                     cmd.ExecuteNonQuery();
                 }
 
+            }
+        }
+        private void EditVendor(MySqlConnection conn, MySqlTransaction tx, int personId, Vendor vendor)
+        {
+            using (MySqlCommand cmd = conn.CreateCommand())
+            {
+                cmd.Transaction = tx;
+                cmd.CommandText = @"UPDATE vendors SET vendor_company_name = @vendor_name WHERE vendors.person_id = @id; SELECT LAST_INSERT_ID();";
+                cmd.Parameters.AddWithValue("@vendor_name", vendor.VendorName);
+                cmd.Parameters.AddWithValue("@id", personId);
+                cmd.ExecuteNonQuery();
             }
         }
         private void AddPerformer(MySqlConnection conn, MySqlTransaction tx, int personId, Performer performer)
@@ -286,6 +350,18 @@ VALUES (@person_name, @person_contact, @person_email,  @role); SELECT LAST_INSER
 
             }
         }
+        private void EditPerformer(MySqlConnection conn, MySqlTransaction tx, int personId, Performer performer)
+        {
+            using (MySqlCommand cmd = conn.CreateCommand())
+            {
+                cmd.Transaction = tx;
+                cmd.CommandText = "UPDATE performers SET fee = @fee WHERE performers.person_id = @id";
+                cmd.Parameters.AddWithValue("@fee", performer.Fee);
+                cmd.Parameters.AddWithValue("@id", personId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+ 
         private void AddCrew(MySqlConnection conn, MySqlTransaction tx, int personId, Crew crew)
         {
             using (MySqlCommand cmd = conn.CreateCommand())
@@ -297,6 +373,19 @@ VALUES (@emptype, @hourly_rate, @weekly_hours, @person_id); ";
                 cmd.Parameters.AddWithValue("@hourly_rate", crew.HourlyRate);
                 cmd.Parameters.AddWithValue("@weekly_hours", crew.WeeklyHours);
                 cmd.Parameters.AddWithValue(@"person_id", personId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+        private void EditCrew(MySqlConnection conn, MySqlTransaction tx, int personId, Crew crew)
+        {
+            using (MySqlCommand cmd = conn.CreateCommand())
+            {
+                cmd.Transaction = tx;
+                cmd.CommandText = @"UPDATE crew SET employee_type = @emptype, hourly_rate = @hourly_rate, weekly_hours= @weekly_hours WHERE crew.person_id = @id";
+                cmd.Parameters.AddWithValue("@emptype", crew.EmploymentType);
+                cmd.Parameters.AddWithValue("@hourly_rate", crew.HourlyRate);
+                cmd.Parameters.AddWithValue("@weekly_hours", crew.WeeklyHours);
+                cmd.Parameters.AddWithValue(@"id", personId);
                 cmd.ExecuteNonQuery();
             }
         }

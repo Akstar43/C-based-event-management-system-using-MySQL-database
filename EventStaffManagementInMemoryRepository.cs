@@ -4,7 +4,7 @@ using System.Text;
 
 namespace musicfestivalmanagementapp
 {
-    internal class EventStaffManagementRepository : IEventStaffManagementRepository  
+    internal class EventStaffManagementRepository : IEventStaffManagementRepository
     {
         private List<EventStaff> eventstaffs;
         private int nextId;
@@ -17,7 +17,7 @@ namespace musicfestivalmanagementapp
         {
             if (eventstaff == null)
             {
-                throw new Exception("Item cannot be null");
+                throw new Exception("Staff cannot be null");
             }
 
             if (string.IsNullOrWhiteSpace(eventstaff.PersonID))
@@ -94,7 +94,7 @@ namespace musicfestivalmanagementapp
         {
             for (int i = 0; i < eventstaffs.Count; i++)
             {
-                if(eventstaffs[i].Email == email)
+                if (eventstaffs[i].Email == email)
                 {
                     return true;
                 }
@@ -102,9 +102,10 @@ namespace musicfestivalmanagementapp
             }
             return false;
         }
-        public void Delete(int PersonID) {
+        public void Delete(int PersonID)
+        {
             EventStaff eventstaff = FindByID(PersonID);
-            if(eventstaff == null)
+            if (eventstaff == null)
             {
                 eventstaffs.Remove(eventstaff);
             }
@@ -112,16 +113,34 @@ namespace musicfestivalmanagementapp
         public EventStaff FindByID(int id)
         {
             string newid = id.ToString();
-            for(int i = 0; i < eventstaffs.Count; i++)
+            for (int i = 0; i < eventstaffs.Count; i++)
 
             {
-                if (eventstaffs[i].PersonID == newid) 
+                if (eventstaffs[i].PersonID == newid)
                 {
                     return eventstaffs[i];
 
                 }
             }
             return null;
+        }
+        public void Edit(EventStaff eventstaff, int PersonID)
+        {
+            if (eventstaff == null)
+            {
+                throw new ArgumentException(nameof(eventstaff));
+            }
+            string targetID = PersonID.ToString();
+            for (int i = 0; i < eventstaffs.Count; i++)
+            {
+                if (eventstaffs[i].PersonID == targetID)
+                {
+                    eventstaff.PersonID = eventstaffs[i].PersonID;
+                    eventstaffs[i] = eventstaff;
+                    return;
+                }
+            }
+            throw new Exception($"Staff member with ID {PersonID} was not found");
         }
     }
 }

@@ -76,7 +76,29 @@ namespace musicfestivalmanagementapp
                             }
                             break;
                         case 4:
-                            EditRecords();
+                            Console.WriteLine("==Edit Staff==");
+                            Console.WriteLine("1. Edit Vendor");
+                            Console.WriteLine("2. Edit Performer");
+                            Console.WriteLine("3. Edit Crew");
+                            Console.WriteLine("Enter Choice: ");
+                            if (int.TryParse(Console.ReadLine(), out int optional))
+                            {
+                                switch (optional)
+                                {
+                                    case 1:
+                                        EditVendor();
+                                        break;
+                                    case 2:
+                                        EditPerformer();
+                                        break;
+                                    case 3:
+                                        EditCrew();
+                                        break;
+                                    default:
+                                        Console.WriteLine("Invalid Choice");
+                                        break;
+                                }
+                            }
                             break;
                         case 5:
                             DeleteRecords();
@@ -121,6 +143,27 @@ namespace musicfestivalmanagementapp
             Console.WriteLine($"\n{result}");
 
         }
+        public void EditVendor()
+        {
+            List<string> categories = new List<string>();
+            ViewAllVendors();
+            Console.Write("Enter ID of the Staff you would like to edit: ");
+            string personId = Console.ReadLine();
+            Console.WriteLine("Edit Vendor");
+            Console.WriteLine("Vendor Name");
+            string name = Console.ReadLine();
+            Console.WriteLine("Vendor Telephone");
+            string telephone = Console.ReadLine();
+            Console.WriteLine("Vendor email");
+            string email = Console.ReadLine();
+            Console.WriteLine("Vendor Company name");
+            string vendor_name = Console.ReadLine();
+            string role = "Vendor";
+
+            string result = manager.EditVendor(name, email, telephone, role, vendor_name, categories, personId);
+            Console.WriteLine($"\n{result}");
+
+        }
         public void AddPerformer()
         {
             List<string> genres = new List<string>();
@@ -150,6 +193,26 @@ namespace musicfestivalmanagementapp
             string role = "Performer";
 
             string result = manager.AddPerformer(name, email, telephone, role, fee, genres);
+            Console.WriteLine($"\n{result}");
+
+        }
+        public void EditPerformer()
+        {
+            List<string> genres = new List<string>();
+            ViewAllPerformers();
+            Console.Write("Enter ID of the Performer you would like to edit: ");
+            string personId = Console.ReadLine();
+            Console.WriteLine("Edit Performer");
+            Console.WriteLine("person Name");
+            string name = Console.ReadLine();
+            Console.WriteLine("Performer Telephone");
+            string telephone = Console.ReadLine();
+            Console.WriteLine("Performer email");
+            string email = Console.ReadLine();
+            Console.WriteLine("Performer Fee");
+            string fee = Console.ReadLine();
+            string role = "Performer";
+            string result = manager.EditPerformer(name, email, telephone, role, fee, genres, personId);
             Console.WriteLine($"\n{result}");
 
         }
@@ -213,6 +276,69 @@ namespace musicfestivalmanagementapp
             string result = manager.AddCrew(name, email, telephone, role, hourly_rate, weekly_hours.ToString(), employment_type);
             Console.WriteLine($"\n{result}");
 
+        }
+        public void EditCrew()
+        {
+            string employment_type = "";
+            string employment_type_options = "";
+            int weekly_hours_options = 0;
+            int weekly_hours = 0;
+            ViewAllCrew();
+            Console.Write("Enter ID of the Crew you would like to edit: ");
+            string personId = Console.ReadLine();
+            Console.WriteLine("Edit Crew Member");
+            Console.WriteLine("Crew Member Name");
+            string name = Console.ReadLine();
+            Console.WriteLine("Crew Member Telephone");
+            string telephone = Console.ReadLine();
+            Console.WriteLine("Crew Member email");
+            string email = Console.ReadLine();
+            Console.WriteLine("Crew Member Hourly rate ($)");
+            string hourly_rate = Console.ReadLine();
+            while (employment_type_options != "1" && employment_type_options != "2")
+            {
+                Console.WriteLine("Employment type \n 1. Full Time\n 2. Part time\n");
+                employment_type_options = Console.ReadLine();
+
+                if (employment_type_options == "1")
+                {
+                    employment_type = "Full Time";
+                }
+                else if (employment_type_options == "2")
+                {
+                    employment_type = "Part Time";
+                }
+                else
+                {
+                    Console.WriteLine("Invalid selection. Please try again.\n");
+                }
+
+            }
+            while (weekly_hours == 0)
+            {
+                Console.WriteLine("Weekly hours");
+                if (int.TryParse(Console.ReadLine(), out int weekly_hours_option))
+                {
+                    if (employment_type == "Full Time" && (weekly_hours_option >= 25 && weekly_hours_option <= 40))
+                    {
+                        weekly_hours = weekly_hours_option;
+                    }
+                    else if (employment_type == "Part Time" && (weekly_hours_option >= 1 && weekly_hours_option <= 24))
+                    {
+                        weekly_hours = weekly_hours_option;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Invalid hours for {employment_type}. Please try again.\n");
+                    }
+
+
+                }
+            }
+            string role = "Crew";
+
+            string result = manager.EditCrew(name, email, telephone, role, hourly_rate, weekly_hours.ToString(), employment_type, personId);
+            Console.WriteLine($"\n{result}");
         }
         private void ViewAllPerformers()
         {
